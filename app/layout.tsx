@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
-
+import {ClerkProvider} from '@clerk/nextjs'
+import Provider from "./provider";
 const appFont=DM_Sans({
   subsets:["latin"]
 })
@@ -16,12 +17,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <ClerkProvider>
+      <html lang="en">
       <body
       className={appFont.className}
-      >
-        {children}
+      > 
+      <Provider>
+         {children}
+      </Provider>
+       
       </body>
-    </html>
+    </html>    
+     </ClerkProvider>
   );
 }
