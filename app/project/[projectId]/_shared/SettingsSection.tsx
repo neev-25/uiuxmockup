@@ -3,19 +3,26 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { THEME_NAME_LIST, THEMES } from '@/data/Themes'
+import { ProjectType } from '@/type/types'
 import { Camera, Share, Sparkles } from 'lucide-react'
-import React, { useState } from 'react'
-
-function SettingsSection() {
+import React, { useEffect, useState } from 'react'
+type Props={
+  projectDetail:ProjectType|undefined
+}
+function SettingsSection({projectDetail}:Props) {
     const [selectedTheme,setSelectedTheme]=useState('AURORA_INK')
-    const [projectName,setProjectName]=useState('');
+    const [projectName,setProjectName]=useState(projectDetail?.projectName);
     const [userNewScreenInput,setUserNewScreenInput]=useState<string>()
-  return (
+  useEffect(()=>{
+      projectDetail&& setProjectName(projectDetail?.projectName)
+  },[projectDetail])
+    return (
     <div className='w-[300px] h-[90vh] p-5 border-r'>
       <h2 className='font-medium text-lg'>Settings</h2>
       <div className='mt-3'>
         <h2 className='text-sm mb-1'>Project Name</h2>
       <Input placeholder='Project Name'
+      value={projectName}
       onChange={(event)=>setProjectName(event.target.value)}
       />
       </div>
@@ -32,7 +39,9 @@ function SettingsSection() {
         <div className='h-[200px] overflow-auto'>
             <div>
                 {THEME_NAME_LIST.map((theme,index)=>(
-                <div className={`p-3 border rounded-xl mb-2
+                <div 
+                key={index}
+                className={`p-3 border rounded-xl mb-2
                     ${theme==selectedTheme&&'border-primary bg-primary/20'}
                     `}
 
