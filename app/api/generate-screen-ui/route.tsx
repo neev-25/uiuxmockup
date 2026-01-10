@@ -14,7 +14,9 @@ export async function POST(req:NextRequest){
     `
     try{
      const aiResult = await openrouter.chat.send({
-      model: "meta-llama/llama-3.1-8b-instruct",
+      // model: "meta-llama/llama-3.1-8b-instruct",
+      model:"xiaomi/mimo-v2-flash:free",
+
         temperature: 0,
       responseFormat:{type:"json_object"},
       messages: [

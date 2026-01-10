@@ -8,7 +8,8 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req:NextRequest) {
     const {userInput,deviceType,projectId}=await req.json();
     const aiResult = await openrouter.chat.send({
-  model: "meta-llama/llama-3.1-8b-instruct",
+  // model: "meta-llama/llama-3.1-8b-instruct",
+  model:"xiaomi/mimo-v2-flash:free",
     temperature: 0,
   responseFormat:{type:"json_object"},
   messages: [
