@@ -70,6 +70,7 @@ function Canvas({projectDetail,screenConfig}:Props){
             setPanningEnabled={setPanningEnabled}
             htmlCode={screen?.code}
             projectDetail={projectDetail}
+            screen={screen}
             /> :
             <div 
             className='bg-white rounded-2xl p-5 gap-4 flex flex-col'

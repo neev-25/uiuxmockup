@@ -1,3 +1,6 @@
+import { useMemo } from "react";
+import { themeToCssVars } from "./Themes";
+
 export const suggestions = [
   {
     icon: "✈️",
@@ -42,3 +45,28 @@ export const suggestions = [
       "Interactive learning app for kids with rewards. Colorful UI and playful illustrations.",
   },
 ];
+
+
+
+export const HTMLWrapper=(theme:any,htmlCode:string)=>{
+  return `
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    ${themeToCssVars(theme)}
+  </style>
+</head>
+
+<body class="bg-[var(--background)] text-[var(--foreground)] w-full">
+  ${htmlCode ?? ""}
+</body>
+</html>
+`
+}

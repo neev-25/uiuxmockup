@@ -4,6 +4,9 @@ import { ProjectType } from '@/type/types';
 import { GripVertical } from 'lucide-react';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {Rnd} from "react-rnd";
+import ScreenHandler from './ScreenHandler';
+import { ScreenConfig } from '../../../../type/types';
+import { HTMLWrapper } from '@/data/constant';
 type Props={
     x:number,
     y:number,
@@ -11,9 +14,10 @@ type Props={
     width:number,
     height:number,
     htmlCode:string|undefined,
-    projectDetail:ProjectType|undefined
+    projectDetail:ProjectType|undefined,
+    screen:ScreenConfig
 }
-function ScreenFrame({x,y,setPanningEnabled,width,height,htmlCode,projectDetail}:Props) {
+function ScreenFrame({x,y,setPanningEnabled,width,height,htmlCode,projectDetail,screen}:Props) {
 
     const {settingsDetail,setSettingsDetail}=useContext(SettingContext)
 
@@ -56,26 +60,28 @@ const theme = useMemo(() => {
   return THEMES[resolvedThemeKey] || THEMES.AURORA_INK;
 }, [resolvedThemeKey]);
 
-const html = useMemo(() => `
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+// const html = useMemo(() => `
+// <!doctype html>
+// <html>
+// <head>
+//   <meta charset="utf-8" />
+//   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
+//   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+//   <script src="https://cdn.tailwindcss.com"></script>
 
-  <style>
-    ${themeToCssVars(theme)}
-  </style>
-</head>
+//   <style>
+//     ${themeToCssVars(theme)}
+//   </style>
+// </head>
 
-<body class="bg-[var(--background)] text-[var(--foreground)] w-full">
-  ${htmlCode ?? ""}
-</body>
-</html>
-`, [resolvedThemeKey, htmlCode, theme]);
+// <body class="bg-[var(--background)] text-[var(--foreground)] w-full">
+//   ${htmlCode ?? ""}
+// </body>
+// </html>
+// `, [resolvedThemeKey, htmlCode, theme]);
+
+const html=HTMLWrapper(theme,htmlCode as string)
 
 const [size,setSize]=useState({width,height});
 
@@ -179,8 +185,8 @@ useEffect(() => {
     }}
     >
         <div className='drag-handle flex gap-2 items-center cursor-move bg-white rounded-lg p-4'>
-            <GripVertical className='text-gray-500 h-4 w-4'/> Drag Here
-        </div>
+            <ScreenHandler screen={screen} theme={theme} iframeRef={iframeRef} projectId={projectDetail?.projectId}/>
+    </div>
         <iframe
         key={`${resolvedThemeKey}-${htmlCode?.substring(0, 100)?.replace(/[^a-zA-Z0-9]/g, '') || 'empty'}`}
         ref={iframeRef}
