@@ -42,15 +42,25 @@ export async function POST(req:NextRequest){
       stream: false
     });
     const code=aiResult?.choices[0]?.message?.content
+    if (!code) {
+        return NextResponse.json({error: 'Failed to generate code'}, {status: 500});
+    }
+    
     const updateResult=await db.update(ScreenConfigTable)
     .set({
         code:code as string
     }).where(and(eq(ScreenConfigTable.projectId,projectId),
-    eq(ScreenConfigTable?.screenId,screenId as string)))
+    eq(ScreenConfigTable.screenId,screenId as string)))
     .returning()
+    
+    if (!updateResult || updateResult.length === 0) {
+        return NextResponse.json({error: 'Screen not found'}, {status: 404});
+    }
+    
     return NextResponse.json(updateResult[0]) 
 }
 catch(e){
-    NextResponse.json({msg:'Internal Server Error!'})
+    console.error('Error generating screen UI:', e);
+    return NextResponse.json({error:'Internal Server Error!', details: e instanceof Error ? e.message : 'Unknown error'}, {status: 500})
 }
 }

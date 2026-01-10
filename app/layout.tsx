@@ -3,6 +3,7 @@ import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import {ClerkProvider} from '@clerk/nextjs'
 import Provider from "./provider";
+import { Toaster } from "@/components/ui/sonner";
 const appFont=DM_Sans({
   subsets:["latin"]
 })
@@ -25,7 +26,7 @@ export default function RootLayout({
       <Provider>
          {children}
       </Provider>
-       
+       <Toaster position="top-center"/>
       </body>
     </html>    
      </ClerkProvider>
