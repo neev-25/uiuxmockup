@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
 import ScreenFrame from './ScreenFrame';
 import { ProjectType, ScreenConfig } from '@/type/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Minus, Plus, RefreshCw, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 type Props={
     projectDetail:ProjectType|undefined,
     screenConfig:ScreenConfig[],
@@ -14,7 +16,18 @@ function Canvas({projectDetail,screenConfig}:Props){
     const isMobile=projectDetail?.device=='mobile';
     const SCREEN_WIDTH=isMobile?400:1200;
     const SCREEN_HEIGHT=isMobile?800:800;
-    const GAP=isMobile?10:70;
+    const GAP=isMobile?10:20;
+    const Controls = () => {
+  const { zoomIn, zoomOut, resetTransform } = useControls();
+
+  return (
+    <div className="tools absolute p-2 px-3 bg-white shadow flex gap-3 rounded-4xl bottom-10 left-1/2 z-30 text-gray-500">
+      <Button  variant={'ghost'} size={'sm'} onClick={() => zoomIn()}><Plus/></Button>
+      <Button variant={'ghost'} size={'sm'} onClick={() => zoomOut()}><Minus/></Button>
+      <Button variant={'ghost'} size={'sm'} onClick={() => resetTransform()}><RefreshCw/></Button>
+    </div>
+  );
+};
   return (
     <div className='w-full h-screen bg-gray-100'
     style={{
@@ -33,25 +46,39 @@ function Canvas({projectDetail,screenConfig}:Props){
        doubleClick={{disabled:false}}
        panning={{disabled:!panningEnabled}}
        >
+        {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
+        <>
+          <Controls />
       <TransformComponent
-      wrapperStyle={{width:'100%',height:'100%'}}
+      wrapperStyle={{width:'100%',height:'100%', position:'relative'}}
       >
+        <div style={{
+          position:'relative', 
+          width:'max-content', 
+          height:'max-content',
+          minWidth:`${screenConfig?.length * (SCREEN_WIDTH + GAP)}px`,
+          minHeight:'100vh',
+          padding:'20px'
+        }}>
         {screenConfig?.map((screen,index)=>(
-          <div>
-         {screen?.code?<ScreenFrame 
+          <div key={screen?.screenId || index}>
+         {screen?.code ? <ScreenFrame 
             x={index*(SCREEN_WIDTH+GAP)} 
-            y={0} 
+            y={20} 
             width={SCREEN_WIDTH}
             height={SCREEN_HEIGHT}
-            key={index} 
             setPanningEnabled={setPanningEnabled}
             htmlCode={screen?.code}
             projectDetail={projectDetail}
-            />:
-            <div className='bg-white rounded-2xl p-5 gap-4 flex flex-col'
+            /> :
+            <div 
+            className='bg-white rounded-2xl p-5 gap-4 flex flex-col'
             style={{
                 width:SCREEN_WIDTH,
-                height:SCREEN_HEIGHT
+                height:SCREEN_HEIGHT,
+                position:'absolute',
+                left:`${index*(SCREEN_WIDTH+GAP)}px`,
+                top:20
             }}
             >
                 <Skeleton className='w-full rounded-lg h-10 bg-gray-200'/>
@@ -67,8 +94,10 @@ function Canvas({projectDetail,screenConfig}:Props){
             </div>
          
         ))}
+        </div>
 
       </TransformComponent>
+      </>)}
     </TransformWrapper>
     </div>
   )

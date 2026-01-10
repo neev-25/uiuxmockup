@@ -37,3 +37,35 @@ export async function GET(req:NextRequest) {
     }
     
 }
+
+export async function PUT(req:NextRequest) {
+    try {
+        const {projectName,theme,projectId}=await req.json();
+        const user=await currentUser();
+        
+        if (!projectId) {
+            return NextResponse.json({error: 'projectId is required'}, {status: 400});
+        }
+        
+        const updateData: any = {};
+        if (projectName !== undefined) updateData.projectName = projectName;
+        if (theme !== undefined) updateData.theme = theme;
+        
+        const result=await db.update(ProjectTable)
+            .set(updateData)
+            .where(and(
+                eq(ProjectTable.projectId,projectId),
+                eq(ProjectTable.userId, user?.primaryEmailAddress?.emailAddress as string)
+            ))
+            .returning();
+            
+        if (!result || result.length === 0) {
+            return NextResponse.json({error: 'Project not found or unauthorized'}, {status: 404});
+        }
+        
+        return NextResponse.json(result[0]);
+    } catch (error) {
+        console.error('Error updating project:', error);
+        return NextResponse.json({error: 'Internal Server Error'}, {status: 500});
+    }
+}

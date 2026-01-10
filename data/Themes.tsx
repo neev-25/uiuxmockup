@@ -247,45 +247,95 @@ export const THEME_NAME_LIST = [
 export type ThemeKey = keyof typeof THEMES;
 export type Theme = (typeof THEMES)[ThemeKey];
 
-export function themeToCssVars(theme: any) {
-    return `
+export function themeToCssVars(theme: Theme | ThemeKey) {
+    // If it's a string key, get the theme object
+    const themeObj = typeof theme === 'string' && theme in THEMES 
+        ? THEMES[theme as ThemeKey] 
+        : theme as Theme;
+    
+    if (!themeObj || typeof themeObj !== 'object') {
+        // Fallback to default theme
+        const defaultTheme = THEMES.AURORA_INK;
+        return `
   :root {
-    --background: ${theme.background};
-    --foreground: ${theme.foreground};
+    --background: ${defaultTheme.background};
+    --foreground: ${defaultTheme.foreground};
   
-    --card: ${theme.card};
-    --card-foreground: ${theme.cardForeground};
+    --card: ${defaultTheme.card};
+    --card-foreground: ${defaultTheme.cardForeground};
   
-    --popover: ${theme.popover};
-    --popover-foreground: ${theme.popoverForeground};
+    --popover: ${defaultTheme.popover};
+    --popover-foreground: ${defaultTheme.popoverForeground};
   
-    --primary: ${theme.primary};
-    --primary-rgb: ${theme.primaryRgb};
-    --primary-foreground: ${theme.primaryForeground};
+    --primary: ${defaultTheme.primary};
+    --primary-rgb: ${defaultTheme.primaryRgb};
+    --primary-foreground: ${defaultTheme.primaryForeground};
   
-    --secondary: ${theme.secondary};
-    --secondary-foreground: ${theme.secondaryForeground};
+    --secondary: ${defaultTheme.secondary};
+    --secondary-foreground: ${defaultTheme.secondaryForeground};
   
-    --muted: ${theme.muted};
-    --muted-foreground: ${theme.mutedForeground};
+    --muted: ${defaultTheme.muted};
+    --muted-foreground: ${defaultTheme.mutedForeground};
   
-    --accent: ${theme.accent};
-    --accent-foreground: ${theme.accentForeground};
+    --accent: ${defaultTheme.accent};
+    --accent-foreground: ${defaultTheme.accentForeground};
   
-    --destructive: ${theme.destructive};
+    --destructive: ${defaultTheme.destructive};
   
-    --border: ${theme.border};
-    --input: ${theme.input};
-    --ring: ${theme.ring};
+    --border: ${defaultTheme.border};
+    --input: ${defaultTheme.input};
+    --ring: ${defaultTheme.ring};
   
-    --radius: ${theme.radius};
+    --radius: ${defaultTheme.radius};
   
     /* charts */
-    --chart-1: ${theme.chart?.[0]};
-    --chart-2: ${theme.chart?.[1]};
-    --chart-3: ${theme.chart?.[2]};
-    --chart-4: ${theme.chart?.[3]};
-    --chart-5: ${theme.chart?.[4]};
+    --chart-1: ${defaultTheme.chart?.[0]};
+    --chart-2: ${defaultTheme.chart?.[1]};
+    --chart-3: ${defaultTheme.chart?.[2]};
+    --chart-4: ${defaultTheme.chart?.[3]};
+    --chart-5: ${defaultTheme.chart?.[4]};
+  }
+  `;
+    }
+    
+    return `
+  :root {
+    --background: ${themeObj.background};
+    --foreground: ${themeObj.foreground};
+  
+    --card: ${themeObj.card};
+    --card-foreground: ${themeObj.cardForeground};
+  
+    --popover: ${themeObj.popover};
+    --popover-foreground: ${themeObj.popoverForeground};
+  
+    --primary: ${themeObj.primary};
+    --primary-rgb: ${themeObj.primaryRgb};
+    --primary-foreground: ${themeObj.primaryForeground};
+  
+    --secondary: ${themeObj.secondary};
+    --secondary-foreground: ${themeObj.secondaryForeground};
+  
+    --muted: ${themeObj.muted};
+    --muted-foreground: ${themeObj.mutedForeground};
+  
+    --accent: ${themeObj.accent};
+    --accent-foreground: ${themeObj.accentForeground};
+  
+    --destructive: ${themeObj.destructive};
+  
+    --border: ${themeObj.border};
+    --input: ${themeObj.input};
+    --ring: ${themeObj.ring};
+  
+    --radius: ${themeObj.radius};
+  
+    /* charts */
+    --chart-1: ${themeObj.chart?.[0]};
+    --chart-2: ${themeObj.chart?.[1]};
+    --chart-3: ${themeObj.chart?.[2]};
+    --chart-4: ${themeObj.chart?.[3]};
+    --chart-5: ${themeObj.chart?.[4]};
   }
   `;
 }
