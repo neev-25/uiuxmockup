@@ -20,6 +20,7 @@ function ProjectCanvasPlayground() {
   const [loadingMsg,setLoadingMsg]=useState('Loading');
   const generatingRef = useRef(false);
   const {refreshData,setRefreshData}=useContext(RefreshDataContext);
+  const [takeScreenShot,setTakeScreenShot]=useState<any>()
   
   
   useEffect(()=>{
@@ -141,6 +142,8 @@ function ProjectCanvasPlayground() {
     generatingRef.current = false;
     setLoading(false)
     setLoadingMsg('Loading')
+    // setTakeScreenShot(true)
+    
   }
 
   return (
@@ -155,11 +158,14 @@ function ProjectCanvasPlayground() {
         {/* Settings */}
         <SettingsSection projectDetail={projectDetail}
         screenDescription={screenConfig[0]?.screenDescription}
+        takeScreenShot={()=>setTakeScreenShot(false)}
         />
         
         {/* canvas */}
         <Canvas projectDetail={projectDetail} 
-        screenConfig={screenConfig}/>
+        screenConfig={screenConfig}
+        takeScreenShot={takeScreenShot}
+        />
       </div>
     </div>
   )
