@@ -40,7 +40,7 @@ export async function GET(req:NextRequest) {
 
 export async function PUT(req:NextRequest) {
     try {
-        const {projectName,theme,projectId}=await req.json();
+        const {projectName,theme,projectId,screenShot}=await req.json();
         const user=await currentUser();
         
         if (!projectId) {
@@ -50,9 +50,14 @@ export async function PUT(req:NextRequest) {
         const updateData: any = {};
         if (projectName !== undefined) updateData.projectName = projectName;
         if (theme !== undefined) updateData.theme = theme;
+
         
         const result=await db.update(ProjectTable)
-            .set(updateData)
+            .set({
+                ...updateData,
+                screenShot:screenShot ?? null
+
+            })
             .where(and(
                 eq(ProjectTable.projectId,projectId),
                 eq(ProjectTable.userId, user?.primaryEmailAddress?.emailAddress as string)

@@ -15,13 +15,14 @@ type Props={
     height:number,
     htmlCode:string|undefined,
     projectDetail:ProjectType|undefined,
-    screen:ScreenConfig
+    screen:ScreenConfig|undefined,
+    iframeRef:any
 }
-function ScreenFrame({x,y,setPanningEnabled,width,height,htmlCode,projectDetail,screen}:Props) {
+function ScreenFrame({x,y,setPanningEnabled,width,height,htmlCode,projectDetail,screen,iframeRef}:Props) {
 
     const {settingsDetail,setSettingsDetail}=useContext(SettingContext)
 
-    const iframeRef=useRef<HTMLIFrameElement|null>(null)
+    // const iframeRef=useRef<HTMLIFrameElement|null>(null)
 
 // const html = `
 // <!doctype html>
