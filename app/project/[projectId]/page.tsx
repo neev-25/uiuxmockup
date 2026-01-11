@@ -153,7 +153,9 @@ function ProjectCanvasPlayground() {
           </h2>
         </div>}
         {/* Settings */}
-        <SettingsSection projectDetail={projectDetail}/>
+        <SettingsSection projectDetail={projectDetail}
+        screenDescription={screenConfig[0]?.screenDescription}
+        />
         
         {/* canvas */}
         <Canvas projectDetail={projectDetail} 
