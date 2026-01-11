@@ -11,9 +11,10 @@ import { Camera, Loader, Loader2Icon, Share, Sparkles } from 'lucide-react'
 import React, { useContext, useEffect, useState } from 'react'
 type Props={
   projectDetail:ProjectType|undefined,
-  screenDescription?:string|undefined
+  screenDescription?:string|undefined,
+  takeScreenShot:any
 }
-function SettingsSection({projectDetail,screenDescription}:Props) {
+function SettingsSection({projectDetail,screenDescription,takeScreenShot}:Props) {
     const [selectedTheme,setSelectedTheme]=useState('')
     const [projectName,setProjectName]=useState(projectDetail?.projectName);
     const [userNewScreenInput,setUserNewScreenInput]=useState<string>()
@@ -152,7 +153,7 @@ try{
       <div className='mt-5'>
         <h2 className='text-sm mb-2'>Extras</h2>
         <div className='grid grid-cols-2 gap-3'>
-            <Button size={'sm'} variant={'outline'} ><Camera className='mr-2 h-4 w-4'/>Screenshot</Button>
+            <Button size={'sm'} variant={'outline'} onClick={takeScreenShot}><Camera className='mr-2 h-4 w-4' />Screenshot</Button>
             <Button size={'sm'} variant={'outline'}><Share className='mr-2 h-4 w-4'/>Share</Button>
         </div>
       </div>
