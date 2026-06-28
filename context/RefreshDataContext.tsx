@@ -1,3 +1,12 @@
-import { createContext } from "react";
+import { createContext, Dispatch, SetStateAction } from "react";
+import { RefreshData } from "@/type/types";
 
-export const RefreshDataContext=createContext<any>(null);
+type RefreshDataContextType = {
+  refreshData: RefreshData | undefined;
+  setRefreshData: Dispatch<SetStateAction<RefreshData | undefined>>;
+};
+
+export const RefreshDataContext = createContext<RefreshDataContextType>({
+  refreshData: undefined,
+  setRefreshData: () => {},
+});

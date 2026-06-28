@@ -1,5 +1,33 @@
 import { THEME_NAME_LIST } from "./Themes";
 
+/** Compact prompt — used for API calls to minimize input tokens */
+export const APP_LAYOUT_CONFIG_PROMPT_COMPACT = `
+You are a Lead UI/UX {deviceType} designer. Return ONLY valid JSON (no markdown).
+{
+  "projectName": string,
+  "theme": string,
+  "projectVisualDescription": string,
+  "screens": [{ "id": string, "name": string, "purpose": string, "layoutDescription": string }]
+}
+Rules:
+- 1 screen if user says "one", else 1–4 screens
+- Mobile: first screen = onboarding unless user says "one"
+- Use CSS variables (var(--primary), var(--background), etc.)
+- Icons: lucide:icon-name format
+- Realistic sample data (prices, counts, names)
+- theme must be one of: ${THEME_NAME_LIST.join(", ")}
+`.trim();
+
+export const GENERATE_SCREEN_PROMPT_COMPACT = `
+Output RAW HTML only starting with <div>. No markdown, no comments, no JavaScript.
+Use Tailwind CSS utilities and CSS variables: var(--background), var(--foreground), var(--primary), var(--card), var(--muted-foreground), var(--accent).
+Root: class="relative w-full min-h-screen bg-[var(--background)]". Inner scroll: overflow-y-auto scrollbar-none.
+Style: Dribbble-quality, rounded-2xl/3xl, soft shadows, glassmorphism (backdrop-blur-md).
+Icons: <iconify-icon icon="lucide:home"></iconify-icon>
+Avatars: https://i.pravatar.cc/400
+Charts: inline SVG only. Use realistic data. Do NOT include <html>, <head>, or <body>.
+`.trim();
+
 export const APP_LAYOUT_CONFIG_PROMPT = `
 You are a Lead UI/UX {deviceType} app Designer.
 
@@ -125,233 +153,13 @@ AVAILABLE THEME STYLES
 ${THEME_NAME_LIST}
 `;
 
-export const GENERATE_SCREEN_PROMPT = `
-You are an elite UI/UX designer creating Dribbble-quality HTML UI mockups for Web and Mobile using Tailwind CSS and CSS variables.
-────────────────────────────────────────
-CRITICAL OUTPUT RULES
-────────────────────────────────────────
-Output HTML ONLY — Start with , end at last closing tag
-NO markdown, NO comments, NO explanations
-NO JavaScript, NO canvas — SVG ONLY for charts
-Images rules:
-Avatars → https://i.pravatar.cc/400
-Other images → searchUnsplash ONLY
-Theme variables are PREDEFINED by parent — NEVER redeclare
-Use CSS variables for foundational colors ONLY:
-bg-[var(--background)]
-text-[var(--foreground)]
-bg-[var(--card)]
-User visual instructions ALWAYS override default rules
-────────────────────────────────────────
-DESIGN QUALITY BAR
-────────────────────────────────────────
-Dribbble / Apple / Stripe / Notion level polish
-Premium, glossy, modern aesthetic
-Strong visual hierarchy and spacing
-Clean typography and breathing room
-Subtle motion cues through shadows and layering
-────────────────────────────────────────
-VISUAL STYLE GUIDELINES
-────────────────────────────────────────
-Soft glows:
-drop-shadow-[0_0_8px_var(--primary)]
-Modern gradients:
-bg-gradient-to-r from-[var(--primary)] to-[var(--accent)]
-Glassmorphism:
-backdrop-blur-md + translucent backgrounds
-Rounded surfaces:
-rounded-2xl / rounded-3xl only
-Layered depth:
-shadow-xl / shadow-2xl
-Floating UI elements:
-cards, nav bars, action buttons
-────────────────────────────────────────
-LAYOUT RULES (WEB + MOBILE)
-────────────────────────────────────────
-Root container:
-class="relative w-full min-h-screen bg-[var(--background)]"
-NEVER apply overflow to root
-Inner scrollable container:
-overflow-y-auto
-[&::-webkit-scrollbar]:hidden
+export const GENERATE_SCREEN_PROMPT = GENERATE_SCREEN_PROMPT_COMPACT;
 
-scrollbar-none
-Optional layout elements:
-Sticky or fixed header (glassmorphic)
-Floating cards and panels
-Sidebar (desktop)
-Bottom navigation (mobile)
-Z-Index system:
-bg → z-0
-content → z-10
-floating elements → z-20
-navigation → z-30
-modals → z-40
-header → z-50
-────────────────────────────────────────
-CHART RULES (SVG ONLY)
-────────────────────────────────────────
-Area / Line Chart 
-Circular Progress   75%  
-Donut Chart   75%  
-────────────────────────────────────────
-ICONS & DATA
-────────────────────────────────────────
-Icons:
-
-Use realistic real-world data ONLY:
-"8,432 steps"
-"7h 20m"
-"$12.99"
-Lists should include:
-avatar/logo, title, subtitle/status
-────────────────────────────────────────
-NAVIGATION RULES
-────────────────────────────────────────
-Mobile Bottom Navigation (ONLY when needed):
-Floating, rounded-full
-Position:
-bottom-6 left-6 right-6
-Height: h-16
-Style:
-bg-[var(--card)]/80
-backdrop-blur-xl
-shadow-2xl
-Icons:
-lucide:home
-lucide:bar-chart-2
-lucide:zap
-lucide:user
-lucide:menu
-Active:
-text-[var(--primary)]
-drop-shadow-[0_0_8px_var(--primary)]
-Inactive:
-text-[var(--muted-foreground)]
-Desktop Navigation:
-Sidebar or top nav allowed
-Glassmorphic, sticky if appropriate
-────────────────────────────────────────
-TAILWIND & CSS RULES
-────────────────────────────────────────
-Tailwind v3 utilities ONLY
-Use CSS variables for base colors
-Hardcoded hex colors ONLY if explicitly requested
-Respect font variables from theme
-NO unnecessary wrapper divs
-────────────────────────────────────────
-FINAL SELF-CHECK BEFORE OUTPUT
-────────────────────────────────────────
-Looks like a premium Dribbble shot?
-Web or Mobile layout handled correctly?
-SVG used for charts?
-Root container clean and correct?
-Proper spacing, hierarchy, and polish?
-No forbidden content?
-Generate a stunning, production-ready UI mockup.
-Start with 
-. End at last closing tag.
-`
-
-export const GENRATE_NEW_SCREEN_IN_EXISITING_PROJECT_PROJECT = `You are a Lead UI/UX {deviceType} app Designer.
+export const GENRATE_NEW_SCREEN_IN_EXISITING_PROJECT_PROJECT = `
+You are a Lead UI/UX {deviceType} app Designer.
 You are extending an EXISTING project by adding EXACTLY ONE new screen.
-You are NOT allowed to redesign the project.
-You MUST return ONLY valid JSON (no markdown, no explanations, no trailing commas).
-────────────────────────────────────────
-INPUT
-────────────────────────────────────────
-You will receive:
-deviceType: "Mobile" | "Website"
-A user request describing the ONE new screen to add
-existingProject (ALWAYS provided):
-{
- "projectName": string,
- "theme": string,
- "projectVisualDescription": string,
- "screens": [
-{ "id": string, "name": string, "purpose": string, "layoutDescription": string }
- ]
-}
-The existingProject is the source of truth for the app’s:
-layout patterns, spacing, typography, visual style
-component styling and component vocabulary
-navigation model and active state patterns
-tone of copy + realism of sample data
-────────────────────────────────────────
-OUTPUT JSON SHAPE
-────────────────────────────────────────
-{
- "projectName": string,
- "theme": string,
- "projectVisualDescription": string,
- "screens": [{
- "id": string,
- "name": string,
- "purpose": string,
- "layoutDescription": string
- }]
-}
-────────────────────────────────────────
-HARD RULE: DO NOT CHANGE THE PROJECT
-────────────────────────────────────────
-projectName MUST match existingProject.projectName
-theme MUST match existingProject.theme
-projectVisualDescription MUST match existingProject.projectVisualDescription EXACTLY (do not rewrite it)
-Do NOT modify or re-list existing screens
-Output ONLY the newScreen
-────────────────────────────────────────
-STYLE MATCHING (MOST IMPORTANT)
-────────────────────────────────────────
-The new screen MUST match the existingProject’s established design.
-You MUST reuse the same:
-Root container strategy (padding/safe-area, background treatment, scroll strategy)
-Header structure (sticky vs static, height, title placement, action buttons pattern)
-Typography hierarchy (H1/H2/H3/body/caption rhythm)
-Spacing system (section gaps, grid gaps, padding patterns)
-Component styles (cards/buttons/inputs/tabs/chips/modals/tables)
-Radius/border/shadow system
-Icon system rules already used in existing screens (keep same icon set + naming convention)
-Navigation model (bottom nav / top nav / sidebar) and active state styling
-Copy tone and data realism style
-STRICT:
-Do NOT introduce new UI patterns unless a very similar pattern already exists in existing screens.
-If there are multiple existing screens, mimic the closest one.
-────────────────────────────────────────
-ONE SCREEN ONLY
-────────────────────────────────────────
-Return EXACTLY ONE new screen:
-id: kebab-case, unique vs existingProject.screens
-name: match the naming tone/capitalization of existing screens
-purpose: one clear sentence
-layoutDescription: extremely specific and implementable
-────────────────────────────────────────
-LAYOUTDESCRIPTION REQUIREMENTS
-────────────────────────────────────────
-layoutDescription MUST include:
-Root container layout (scroll areas, sticky sections, overlays if used in the project)
-Clear sections (header/body/cards/lists/nav/footer) using existing patterns
-Realistic sample data (prices, dates, counts, names) consistent with existing screens
-Icon names for each interactive element, following the existing icon rule
-Navigation details IF navigation exists on comparable existing screens:
-same placement, sizing, item count, and active state pattern
-explicitly state which nav item is active on this new screen
-────────────────────────────────────────
-CHARTS RULE
-────────────────────────────────────────
-Do NOT add charts unless:
-the new screen logically requires analytics/trends, AND
-the existingProject already uses charts OR has an established analytics style.
-Otherwise use: KPI cards, stat rows, progress bars, tables, feeds, checklists.
-────────────────────────────────────────
-CONSISTENCY CHECK (MANDATORY)
-────────────────────────────────────────
-Before responding, verify:
-This new screen could be placed beside the existing screens with no visual mismatch
-It uses the same component vocabulary and spacing rhythm
-It follows the same navigation model and active styling
-────────────────────────────────────────
-AVAILABLE THEME STYLES
-────────────────────────────────────────
-${THEME_NAME_LIST}
-`
-
+Return ONLY valid JSON. Match existing project style exactly.
+Output shape: { "projectName", "theme", "projectVisualDescription", "screens": [{ "id", "name", "purpose", "layoutDescription" }] }
+Only ONE new screen. theme and projectVisualDescription must match existing project.
+Themes: ${THEME_NAME_LIST.join(", ")}
+`.trim();
