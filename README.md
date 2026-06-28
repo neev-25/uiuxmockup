@@ -79,6 +79,8 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Deploy to Production
 
+**Live:** [https://uiuxmock-bice.vercel.app](https://uiuxmock-bice.vercel.app)
+
 This app is a standard Next.js project and deploys cleanly to [Vercel](https://vercel.com) (recommended), or any platform that supports Next.js 16.
 
 ### 1. Prepare external services
