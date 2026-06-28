@@ -1,36 +1,172 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# UIUXMock
 
-## Getting Started
+AI-powered UI/UX mockup generator. Describe a website or mobile app idea and get polished, Dribbble-quality HTML mockups rendered on an interactive canvas.
 
-First, run the development server:
+## Features
+
+- **AI screen planning** — Gemini generates 1–4 screens with detailed layout descriptions
+- **AI UI generation** — Each screen is rendered as HTML + Tailwind CSS
+- **Interactive canvas** — Zoom, pan, drag, and resize screen frames
+- **Theme system** — 6 built-in design themes with live preview
+- **Screen editing** — Regenerate individual screens with natural language prompts
+- **Export** — Download screenshots and copy full HTML code
+- **Project management** — Save, revisit, and delete projects (Clerk auth required)
+
+## Tech Stack
+
+- Next.js 16 (App Router) · React 19 · TypeScript
+- Tailwind CSS v4 · shadcn/ui
+- Clerk (authentication)
+- Neon PostgreSQL · Drizzle ORM
+- OpenRouter (Google Gemini 2.5 Flash)
+
+## Prerequisites
+
+- **Node.js** 20.x or later
+- Accounts on [Neon](https://neon.tech), [Clerk](https://clerk.com), and [OpenRouter](https://openrouter.ai)
+
+## Getting Started (Local)
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure environment
+
+Copy `.env.example` to `.env` and fill in your credentials:
+
+```bash
+cp .env.example .env
+```
+
+On Windows (PowerShell):
+
+```powershell
+Copy-Item .env.example .env
+```
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | Yes | Neon PostgreSQL connection string (`?sslmode=require`) |
+| `OPENROUTER_API_KEY` | Yes | API key from [openrouter.ai/keys](https://openrouter.ai/keys) |
+| `OPENROUTER_MODEL` | No | AI model (default: `google/gemini-2.5-flash`) |
+| `OPENROUTER_MAX_TOKENS_CONFIG` | Recommended | Token cap for screen planning (default: `1536`) |
+| `OPENROUTER_MAX_TOKENS_UI` | Recommended | Token cap for UI generation (default: `4096`) |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes | Clerk publishable key |
+| `CLERK_SECRET_KEY` | Yes | Clerk secret key |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | No | Sign-in path (default: `/sign-in`) |
+| `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | No | Sign-up path (default: `/sign-up`) |
+
+> **OpenRouter credits:** AI routes require a funded OpenRouter account. If generation fails with a 402 error, add credits at [openrouter.ai/settings/credits](https://openrouter.ai/settings/credits).
+
+### 3. Set up the database
+
+Push the schema to your Neon database (run once locally, and again after schema changes):
+
+```bash
+npx drizzle-kit push
+```
+
+### 4. Run the dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy to Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This app is a standard Next.js project and deploys cleanly to [Vercel](https://vercel.com) (recommended), or any platform that supports Next.js 16.
 
-## Learn More
+### 1. Prepare external services
 
-To learn more about Next.js, take a look at the following resources:
+**Neon**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Create a project and copy the **pooled** connection string.
+2. Run `npx drizzle-kit push` locally against that database URL to create tables before first deploy.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Clerk**
 
-## Deploy on Vercel
+1. Create a Clerk application.
+2. Add your production domain under **Configure → Domains** (e.g. `your-app.vercel.app`).
+3. Copy **production** API keys (`pk_live_…`, `sk_live_…`).
+4. Set sign-in/sign-up URLs to `/sign-in` and `/sign-up` if using the defaults.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**OpenRouter**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Create an API key and add credits.
+2. Keep `OPENROUTER_MAX_TOKENS_CONFIG` and `OPENROUTER_MAX_TOKENS_UI` set in production — they prevent oversized credit reservations.
+
+### 2. Deploy on Vercel
+
+1. Push this repo to GitHub (or GitLab / Bitbucket).
+2. Import the project in [Vercel](https://vercel.com/new).
+3. Add **all** environment variables from `.env.example` in **Project → Settings → Environment Variables**.
+4. Deploy. Vercel runs `npm run build` automatically.
+
+No custom `next.config` changes are required. Auth is handled by `proxy.ts` (Clerk middleware for Next.js 16).
+
+### 3. Post-deploy checklist
+
+- [ ] Visit `/sign-in` and `/sign-up` on your live URL
+- [ ] Create a test project and confirm AI generation works
+- [ ] Confirm the dashboard loads saved projects
+- [ ] Re-run `npx drizzle-kit push` if you change `config/schema.tsx`
+
+### Deploy elsewhere
+
+For self-hosted or other platforms (Railway, Render, Docker, etc.):
+
+```bash
+npm run build
+npm run start
+```
+
+Set the same environment variables and ensure the platform supports Node.js 20+ and long-running API routes (AI generation can take 30–60 seconds per screen).
+
+## Project Structure
+
+```
+app/
+├── page.tsx                 # Home page & project dashboard
+├── (auth)/                  # Clerk sign-in / sign-up
+├── project/[projectId]/     # Canvas workspace
+└── api/                     # Backend routes
+    ├── project/             # CRUD for projects
+    ├── user/                # User sync
+    ├── generate-config/     # AI screen planning
+    ├── generate-screen-ui/  # AI HTML generation
+    └── edit-screen/         # AI screen editing
+config/                      # DB schema, OpenRouter client
+data/                        # AI prompts, themes, constants
+lib/                         # Shared utilities
+type/                        # TypeScript types
+proxy.ts                     # Clerk auth middleware
+```
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm run start` | Run production server |
+| `npx drizzle-kit push` | Push DB schema to Neon |
+| `npx drizzle-kit studio` | Open Drizzle Studio |
+
+## Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| **402 from OpenRouter** | Add credits; keep `OPENROUTER_MAX_TOKENS_*` env vars set |
+| **404 model not found** | Use `google/gemini-2.5-flash` or another active model on OpenRouter |
+| **DB connection timeout** | Check `DATABASE_URL`; use Neon pooled connection string |
+| **Clerk redirect loop** | Add production domain in Clerk dashboard; verify sign-in URLs |
+| **Build fails** | Run `npm run build` locally; fix TypeScript errors before deploying |
+
+## License
+
+Private — all rights reserved.

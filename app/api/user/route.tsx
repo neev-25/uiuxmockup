@@ -6,21 +6,33 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req:NextRequest)
 {
-    const user=await currentUser();
+    try {
+        const user=await currentUser();
 
-    const users=await db.select().from(usersTable)
-    .where(eq(usersTable.email,user?.primaryEmailAddress?.emailAddress as string))
-
-    if(users?.length==0)
-    {
-        const data={
-            name:user?.fullName??'',
-            email:user?.primaryEmailAddress?.emailAddress as string
+        if(!user || !user.primaryEmailAddress?.emailAddress) {
+            return NextResponse.json({error: 'User not authenticated'}, {status: 401});
         }
-        const result=await db.insert(usersTable).values({
-            ...data
-        }).returning();
-        return NextResponse.json(result[0]);
+
+        const userEmail = user.primaryEmailAddress.emailAddress;
+
+        const users=await db.select().from(usersTable)
+        .where(eq(usersTable.email, userEmail))
+
+        if(users?.length==0)
+        {
+            const data={
+                name:user?.fullName??'',
+                email:userEmail
+            }
+            const result=await db.insert(usersTable).values({
+                ...data
+            }).returning();
+            return NextResponse.json(result[0]);
+        }
+        return NextResponse.json(users[0]??{})
+    } catch(error: any) {
+        console.error('Error in /api/user:', error);
+        const errorMessage = error?.message || String(error) || 'Internal server error';
+        return NextResponse.json({error: errorMessage}, {status: 500});
     }
-    return NextResponse.json(users[0]??{})
 }
